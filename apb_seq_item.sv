@@ -73,15 +73,15 @@ class apb_seq_item #(  ADDR_WIDTH = 3
         s = super.convert2string();
         // Note the use of \t (tab) and \n (newline) to format the data in columns
         // The enumerated op_code types .name() method returns a string corresponding to its value
-        s = {s, $psprintf("\naddr\t\t: %0h",addr)};
-        s = {s, $psprintf("\nprot\t\t: %0b",prot)};
-        s = {s, $psprintf("\nsel\t\t: %0b",sel)};
-        s = {s, $psprintf("\nwrite\t\t: %0b",write)};
-        s = {s, $psprintf("\nready\t\t: %0b",ready)};
-        s = {s, $psprintf("\nwdata\t\t: %0h",wdata)};
-        s = {s, $psprintf("\nstrb\t\t: %0b",strb)};
-        s = {s, $psprintf("\nrdata\t\t: %0h",rdata)};
-        s = {s, $psprintf("\nslv_err\t: %0b",slv_err)};
+        s = {s, $psprintf("\naddr\t\t: %h",addr)};
+        s = {s, $psprintf("\nprot\t\t: %b",prot)};
+        s = {s, $psprintf("\nsel\t\t: %b",sel)};
+        s = {s, $psprintf("\nwrite\t\t: %b",write)};
+        s = {s, $psprintf("\nready\t\t: %b",ready)};
+        s = {s, $psprintf("\nwdata\t\t: %h",wdata)};
+        s = {s, $psprintf("\nstrb\t\t: %b",strb)};
+        s = {s, $psprintf("\nrdata\t\t: %h",rdata)};
+        s = {s, $psprintf("\nslv_err\t\t: %b",slv_err)};
         return s;
     endfunction: convert2string
 
