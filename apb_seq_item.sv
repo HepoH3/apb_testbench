@@ -13,13 +13,13 @@ class apb_seq_item #(  ADDR_WIDTH = 3
     rand bit [ 2:0]            prot;
     rand bit [SEL_WIDTH-1:0]   sel;
     rand bit                   write;
-    rand bit                   ready;
+         bit                   ready;
     // Payload information
     rand bit [WRITE_WIDTH-1:0] wdata;
     rand bit [STRB_WIDTH-1:0]  strb;
     // Analysis information
-    rand bit [READ_WIDTH-1:0]  rdata;
-    rand bit                   slv_err;
+         bit [READ_WIDTH-1:0]  rdata;
+         bit                   slv_err;
     constraint read_constr {
         write == 0 -> strb == 0;
         sel != 0;
