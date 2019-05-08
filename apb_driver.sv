@@ -35,39 +35,57 @@ class apb_driver extends uvm_driver#(apb_seq_item);
 
     task run_phase(uvm_phase phase);
         apb_seq_item trans;
-        //super.run_phase(phase);
+        super.run_phase(phase);
         apb_vi.master_cb.sel    <= 0;
         apb_vi.master_cb.enable <= 1'b0;
         forever begin
-            seq_item_port.get_next_item(trans);
-            uvm_report_info("APB_DRIVER ", $psprintf("Got Transaction %s",trans.convert2string()));
-            @apb_vi.master_cb;
-            apb_vi.master_cb.addr   <= trans.addr;
-            apb_vi.master_cb.sel    <= trans.sel;
-            apb_vi.master_cb.prot   <= trans.prot;
-            if(trans.write)begin
-                apb_vi.master_cb.write  <= 1'b1;
-                //apb_vi.master_cb.wdata  <= trans.wdata;
-                apb_vi.master_cb.strb   <= trans.strb;
+            if(!apb_vi.master_cb.reset_n)begin
+                apb_vi.master_cb.addr   <= 0;
+                apb_vi.master_cb.sel    <= 0;
+                apb_vi.master_cb.prot   <= 0;
+                apb_vi.master_cb.write  <= 0;
+                apb_vi.master_cb.wdata  <= 0;
+                apb_vi.master_cb.strb   <= 0;
+                apb_vi.master_cb.enable <= 0;
                 @apb_vi.master_cb;
-                apb_vi.master_cb.enable <= 1'b1;
-                // while(!apb_vi.master_cb.ready)begin
-                //     @apb_vi.master_cb;
-                // end
             end
             else begin
-                apb_vi.master_cb.write  <= 1'b0;
+                seq_item_port.get_next_item(trans);
+                uvm_report_info("APB_DRIVER ", $psprintf("Got Transaction %s",trans.convert2string()));
                 @apb_vi.master_cb;
-                apb_vi.master_cb.enable <= 1'b1;
-                // while(!apb_vi.master_cb.ready)begin
-                //     @apb_vi.master_cb;
-                // end
-                trans.rdata     <= apb_vi.master_cb.rdata;
-                trans.slv_err   <= apb_vi.master_cb.slv_err;
+                apb_vi.master_cb.addr   <= trans.addr;
+                apb_vi.master_cb.sel    <= trans.sel;
+                apb_vi.master_cb.prot   <= trans.prot;
+                if(trans.write)begin
+                    apb_vi.master_cb.write  <= 1'b1;
+                    apb_vi.master_cb.wdata  <= trans.wdata;
+                    apb_vi.master_cb.strb   <= trans.strb;
+                    @apb_vi.master_cb;
+                    apb_vi.master_cb.enable <= 1'b1;
+                    if(apb_vi.master_cb.ready)begin
+                        @apb_vi.master_cb;
+                    end
+                    else while(!apb_vi.master_cb.ready)begin
+                        @apb_vi.master_cb;
+                    end
+                end
+                else begin
+                    apb_vi.master_cb.write  <= 1'b0;
+                    @apb_vi.master_cb;
+                    apb_vi.master_cb.enable <= 1'b1;
+                    if(apb_vi.master_cb.ready)begin
+                        @apb_vi.master_cb;
+                    end
+                    while(!apb_vi.master_cb.ready)begin
+                        @apb_vi.master_cb;
+                    end
+                    trans.rdata     <= apb_vi.master_cb.rdata;
+                    trans.slv_err   <= apb_vi.master_cb.slv_err;
+                end
+                apb_vi.master_cb.sel    <= 0;
+                apb_vi.master_cb.enable <= 1'b0;
+                seq_item_port.item_done();
             end
-            apb_vi.master_cb.sel    <= 0;
-            apb_vi.master_cb.enable <= 1'b0;
-            seq_item_port.item_done();
         end
     endtask: run_phase
 
