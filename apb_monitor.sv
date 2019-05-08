@@ -37,7 +37,6 @@ class apb_monitor extends uvm_monitor;
 
     task run_phase(uvm_phase phase);
         forever begin
-            apb_seq_item trans;
             // assert property(@apb_vi.monitor_cb |apb_vi.monitor_cb.sel |=> apb_vi.monitor_cb.enable)
             // else $error("Err at apb start");
             //
@@ -46,21 +45,21 @@ class apb_monitor extends uvm_monitor;
             //
             // assert property(@apb_vi.monitor_cb apb_vi.monitor_cb.ready |=> !apb_vi.monitor_cb.enable)
             // else $error("Err at apb finish");
-
-            // while(!(apb_vi.monitor_cb.enable && apb_vi.monitor_cb.ready))begin
-            //     @apb_vi.monitor_cb;
-            // end
-            trans = apb_seq_item#()::type_id::create(.name("trans"));
-            trans.addr      <= apb_vi.monitor_cb.addr;
-            trans.prot      <= apb_vi.monitor_cb.prot;
-            trans.sel       <= apb_vi.monitor_cb.sel;
-            trans.write     <= apb_vi.monitor_cb.write;
-            trans.wdata     <= apb_vi.monitor_cb.wdata;
-            trans.strb      <= apb_vi.monitor_cb.strb;
-            trans.rdata     <= apb_vi.monitor_cb.rdata;
-            trans.slv_err   <= apb_vi.monitor_cb.slv_err;
-            uvm_report_info("APB_MONITOR", $psprintf("Got Transaction %s", trans.convert2string()));
-            apb_ap.write(trans);
+            @apb_vi.monitor_cb;
+            if(apb_vi.monitor_cb.enable && apb_vi.monitor_cb.ready)begin
+                apb_seq_item trans;
+                trans = apb_seq_item#()::type_id::create(.name("trans"));
+                trans.addr      = apb_vi.monitor_cb.addr;
+                trans.prot      = apb_vi.monitor_cb.prot;
+                trans.sel       = apb_vi.monitor_cb.sel;
+                trans.write     = apb_vi.monitor_cb.write;
+                trans.wdata     = apb_vi.monitor_cb.wdata;
+                trans.strb      = apb_vi.monitor_cb.strb;
+                trans.rdata     = apb_vi.monitor_cb.rdata;
+                trans.slv_err   = apb_vi.monitor_cb.slv_err;
+                uvm_report_info("APB_MONITOR", $psprintf("Got Transaction %s", trans.convert2string()));
+                apb_ap.write(trans);
+            end
         end
     endtask: run_phase
 endclass: apb_monitor
