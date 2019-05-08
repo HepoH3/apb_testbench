@@ -30,7 +30,7 @@ interface apb_if #(  ADDR_WIDTH = 3
     localparam STRB_WIDTH = WRITE_WIDTH%8? (WRITE_WIDTH/8)+1 : WRITE_WIDTH/8;
 
 
-    logic [ADDR_WIDTH:0]    addr;
+    logic [ADDR_WIDTH-1:0]    addr;
     logic [ 2:0]            prot;
     logic [SEL_WIDTH-1:0]   sel;
     logic                   enable;
