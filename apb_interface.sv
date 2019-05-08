@@ -44,12 +44,12 @@ interface apb_if #(  ADDR_WIDTH = 3
     clocking master_cb @ (posedge clk);
         default input #3ns output #3ns;
         output addr, prot, sel, enable, write, wdata, strb;
-        input ready, rdata, slv_err;
+        input reset_n, ready, rdata, slv_err;
     endclocking: master_cb
 
     clocking slave_cb @(posedge clk);
-        input addr, prot, sel, enable, write, wdata, strb;
         default input #3ns output #3ns;
+        input reset_n, addr, prot, sel, enable, write, wdata, strb;
         output ready, rdata, slv_err;
     endclocking: slave_cb
 
