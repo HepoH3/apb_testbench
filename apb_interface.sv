@@ -42,19 +42,19 @@ interface apb_if #(  ADDR_WIDTH = 3
     logic                   slv_err;
 
     clocking master_cb @ (posedge clk);
-        default input #1step output #1ns;
+        default input #3ns output #3ns;
         output addr, prot, sel, enable, write, wdata, strb;
         input ready, rdata, slv_err;
     endclocking: master_cb
 
     clocking slave_cb @(posedge clk);
-        default input #1step output #1ns;
         input addr, prot, sel, enable, write, wdata, strb;
+        default input #3ns output #3ns;
         output ready, rdata, slv_err;
     endclocking: slave_cb
 
     clocking monitor_cb @(posedge clk);
-        default input #1step output #1ns;
+        default input #1ns output #1ns;
         input addr, prot, sel, enable, write, wdata, strb, ready, rdata, slv_err;
     endclocking: monitor_cb
 
