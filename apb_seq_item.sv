@@ -22,6 +22,8 @@ class apb_seq_item #(  ADDR_WIDTH = 3
     rand bit                   slv_err;
     constraint read_constr {
         write == 0 -> strb == 0;
+        sel != 0;
+        (sel & (sel-1)) == 0;
     }
     function new(string name = "apb_seq_item");
         super.new(name);
