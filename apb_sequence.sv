@@ -37,10 +37,10 @@ class apb_sequence extends uvm_sequence#(apb_seq_item);
     // endtask: body
     task body();
         apb_seq_item trans;
-        repeat(2) begin
+        forever begin
             trans = apb_seq_item#()::type_id::create("ap_it");
             start_item(trans);
-            assert(req.randomize());
+            assert(trans.randomize());
             finish_item(trans);
         end
     endtask: body

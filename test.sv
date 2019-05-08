@@ -43,10 +43,10 @@ class apb_test extends uvm_test;
         apb_sequence apb_seq;
         phase.raise_objection(.obj(this));
         apb_seq = apb_sequence::type_id::create(.name("apb_seq"));
-        //assert(apb_seq.randomize());
+        assert(apb_seq.randomize());
         `uvm_info("apb_test", {"\n",apb_seq.sprint()}, UVM_LOW)
         apb_seq.start(env.agent.apb_seq);
-        #10ns;
+        #1000ns;
         phase.drop_objection(.obj(this));
     endtask: run_phase
 endclass: apb_test

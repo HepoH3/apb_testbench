@@ -42,13 +42,15 @@ module test_bench;
                 )DUT(apb_intf.slave_sync_mp);
     initial begin
         clk = 0;
-       #5ns ;
-       forever #5ns clk = ! clk;
+        reset = 1;
+        #10ns;
+        reset = 0;
+       forever #10ns clk = ! clk;
     end
 
     initial begin
-       uvm_resource_db#( virtual apb_if )::set
-     ( .scope( "ifs" ), .name( "apb_if" ), .val( apb_intf ) );
-       run_test("apb_test");
+        uvm_config_db#( virtual apb_if )::set
+      ( .cntxt(null), .inst_name(""),.field_name("apb_if"),.value(apb_intf));
+        run_test("apb_test");
     end
 endmodule
