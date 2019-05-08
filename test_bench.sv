@@ -39,7 +39,7 @@ module test_bench;
                 ,  SEL_WIDTH
                 ,WRITE_WIDTH
                 , READ_WIDTH
-                )DUT(apb_intf);
+                )DUT(apb_intf.slave_sync_mp);
     initial begin
         clk = 0;
        #5ns ;

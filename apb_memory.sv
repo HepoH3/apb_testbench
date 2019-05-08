@@ -25,7 +25,7 @@ module apb_memory #( parameter ADDR_WIDTH
                     ,parameter WRITE_WIDTH
                     ,parameter READ_WIDTH
                    )
-                   (apb_if.slave_mp apb_intf);
+                   (apb_if.slave_sync_mp apb_intf);
     localparam IDLE = 2'd0;
     localparam WRITE= 2'd1;
     localparam READ = 2'd2;
@@ -36,32 +36,37 @@ module apb_memory #( parameter ADDR_WIDTH
     bit [WRITE_WIDTH-1:0]data[1<<ADDR_WIDTH];
     initial begin
         state = 0;
+        apb_intf.slave_cb.rdata <= 0;
+        apb_intf.slave_cb.slv_err <= 0;
+        apb_intf.slave_cb.ready <= 0;
     end
 
-    always@(apb_intf.clk) begin
-    if(!apb_intf.reset_n) state <= IDLE;
-    else
-        case(state)
-        IDLE:   if(apb_intf.sel != 0) begin
-                    if(apb_intf.write)begin
-                        state <= WRITE;
+    always @apb_intf.slave_cb begin
+        if(!apb_intf.slave_cb.reset_n) state <= IDLE;
+        else
+            case(state)
+            IDLE:   if(apb_intf.slave_cb.sel != 0) begin
+                        if(apb_intf.slave_cb.write)begin
+                            state <= WRITE;
+                        end
+                        else begin
+                            state <= READ;
+                            apb_intf.slave_cb.rdata <= data[apb_intf.slave_cb.addr];
+                        end
+                        apb_intf.slave_cb.ready <= 1;
                     end
-                    else begin
-                        state <= READ;
-                        apb_intf.rdata <= data[apb_intf.addr];
+                    else state <= IDLE;
+            WRITE:  if(apb_intf.slave_cb.enable) begin
+                        data[apb_intf.slave_cb.addr] <= apb_intf.slave_cb.wdata;
+                        apb_intf.slave_cb.ready <= 0;
+                        state <= IDLE;
                     end
-                    apb_intf.ready <= 1;
-                end
-        WRITE:  if(apb_intf.enable) begin
-                    data[apb_intf.addr] <= apb_intf.wdata;
-                    apb_intf.ready <= 0;
-                    state <= IDLE;
-                end
-        READ:   if(apb_intf.enable) begin
-                    apb_intf.slv_err <= 0;
-                    state <= IDLE;
-                end
-        default: state <= IDLE;
-        endcase
+            READ:   if(apb_intf.slave_cb.enable) begin
+                        apb_intf.slave_cb.slv_err <= 0;
+                        apb_intf.slave_cb.ready <= 0;
+                        state <= IDLE;
+                    end
+            default: state <= IDLE;
+            endcase
     end
 endmodule
