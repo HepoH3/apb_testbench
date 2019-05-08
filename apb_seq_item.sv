@@ -6,6 +6,7 @@ class apb_seq_item #(  ADDR_WIDTH = 3
             , READ_WIDTH = WRITE_WIDTH
             ) extends uvm_sequence_item;
     localparam STRB_WIDTH = WRITE_WIDTH%8? (WRITE_WIDTH/8)+1 : WRITE_WIDTH/8;
+    `uvm_object_utils(apb_seq_item)
 
     // Control information
     rand bit [31:0]            addr;
@@ -26,8 +27,7 @@ class apb_seq_item #(  ADDR_WIDTH = 3
         super.new(name);
     endfunction: new
 
-    `uvm_object_utils(apb_seq_item)
-    function void do_copy(uvm_object rhs);
+    virtual function void do_copy(uvm_object rhs);
         apb_seq_item rhs_;
         if(!$cast(rhs_, rhs)) begin
           uvm_report_error("do_copy:", "Cast failed");
@@ -45,7 +45,7 @@ class apb_seq_item #(  ADDR_WIDTH = 3
         slv_err = rhs_.slv_err;
     endfunction: do_copy
 
-    function bit do_compare(uvm_object rhs, uvm_comparer comparer);
+    virtual function bit do_compare(uvm_object rhs, uvm_comparer comparer);
         apb_seq_item rhs_;
         // If the cast fails, comparison has also failed
          // A check for null is not needed because that is done in the compare()
@@ -65,18 +65,25 @@ class apb_seq_item #(  ADDR_WIDTH = 3
                 (slv_err= rhs_.slv_err));
     endfunction: do_compare
 
-    function string convert2string();
+    virtual function string convert2string();
         string s;
 
         s = super.convert2string();
         // Note the use of \t (tab) and \n (newline) to format the data in columns
         // The enumerated op_code types .name() method returns a string corresponding to its value
-        $sformat(s, "%s\n addr \t%0h\n prot \t%0b\n sel \t%0b\n write \t%0b\n ready \t%0b\n wdata \t%0h\n strb \t%0b\n rdata \t%0h\n slv_err \t%0b\n",
-        s, addr, prot, sel, write, ready, wdata, strb, rdata, slv_err);
+        s = {s, $psprintf("\naddr\t\t: %0h",addr)};
+        s = {s, $psprintf("\nprot\t\t: %0b",prot)};
+        s = {s, $psprintf("\nsel\t\t: %0b",sel)};
+        s = {s, $psprintf("\nwrite\t\t: %0b",write)};
+        s = {s, $psprintf("\nready\t\t: %0b",ready)};
+        s = {s, $psprintf("\nwdata\t\t: %0h",wdata)};
+        s = {s, $psprintf("\nstrb\t\t: %0b",strb)};
+        s = {s, $psprintf("\nrdata\t\t: %0h",rdata)};
+        s = {s, $psprintf("\nslv_err\t: %0b",slv_err)};
         return s;
     endfunction: convert2string
 
-    function void do_print(uvm_printer printer);
+    virtual function void do_print(uvm_printer printer);
         $display(convert2string());
     endfunction: do_print
 
@@ -84,7 +91,7 @@ class apb_seq_item #(  ADDR_WIDTH = 3
     // In order to get transaction viewing to work with Questa you need to
     // Set the recording_detail config item to UVM_FULL:
     // set_config_int("*", "recording_detail", UVM_FULL);
-    function void do_record(uvm_recorder recorder);
+    virtual function void do_record(uvm_recorder recorder);
         super.do_record(recorder); // To record any inherited data members
         `uvm_record_field("addr", addr)
         `uvm_record_field("prot", prot)
@@ -97,7 +104,7 @@ class apb_seq_item #(  ADDR_WIDTH = 3
         `uvm_record_field("slv_err", slv_err)
     endfunction: do_record
 
-    function void do_pack(uvm_packer packer);
+    virtual function void do_pack(uvm_packer packer);
         super.do_pack(packer);
         `uvm_pack_int(addr);
         `uvm_pack_int(prot);
@@ -110,7 +117,7 @@ class apb_seq_item #(  ADDR_WIDTH = 3
         `uvm_pack_int(slv_err);
     endfunction: do_pack
 
-    function void do_unpack(uvm_packer packer);
+    virtual function void do_unpack(uvm_packer packer);
         super.do_unpack(packer);
         `uvm_unpack_int(addr);
         `uvm_unpack_int(prot);
